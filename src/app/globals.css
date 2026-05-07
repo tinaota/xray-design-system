@@ -1,0 +1,117 @@
+@import "mapbox-gl/dist/mapbox-gl.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600&family=JetBrains+Mono:wght@500&display=swap");
+
+@layer base {
+  :root {
+    --color-midnight-navy:   #0F172A;
+    --color-medical-blue:    #3B82F6;
+    --color-emergency-red:   #EF4444;
+    --color-warning-amber:   #F59E0B;
+    --color-ghost-white:     #F8FAFC;
+    --color-slate-gray:      #475569;
+
+    --color-surface:                  #fcf8fa;
+    --color-surface-dim:              #dcd9db;
+    --color-surface-container:        #f0edef;
+    --color-surface-container-high:   #eae7e9;
+    --color-surface-container-lowest: #ffffff;
+    --color-on-surface:               #1b1b1d;
+    --color-on-surface-variant:       #45464d;
+    --color-outline:                  #76777d;
+    --color-outline-variant:          #c6c6cd;
+
+    --color-primary:           #000000;
+    --color-primary-container: #131b2e;
+    --color-on-primary:        #ffffff;
+
+    --color-secondary:           #0058be;
+    --color-secondary-container: #2170e4;
+    --color-on-secondary:        #ffffff;
+
+    --color-error:           #ba1a1a;
+    --color-error-container: #ffdad6;
+    --color-on-error:        #ffffff;
+
+    --radius-sm:  0.125rem;
+    --radius:     0.25rem;
+    --radius-md:  0.375rem;
+    --radius-lg:  0.5rem;
+    --radius-xl:  0.75rem;
+
+    --shadow-card: 0 2px 4px rgba(0,0,0,0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--color-ghost-white);
+    color: var(--color-on-surface);
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Inter", ui-sans-serif, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  .font-label {
+    font-family: "Space Grotesk", ui-sans-serif, sans-serif;
+  }
+}
+
+@layer components {
+  /* High-contrast mode for field technician views */
+  .high-contrast {
+    --color-surface: #000000;
+    --color-on-surface: #ffffff;
+    --color-medical-blue: #60a5fa;
+    --color-emergency-red: #f87171;
+    --color-outline: #9ca3af;
+    background-color: #000000;
+    color: #ffffff;
+  }
+
+  /* Offline indicator pulse */
+  .offline-pulse::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background-color: var(--color-warning-amber);
+    animation: pulse-stat 1.5s ease-in-out infinite;
+    margin-right: 6px;
+  }
+
+  /* Touch target enforcement */
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* CPT / ICD-10 mono display */
+  .code-mono {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
