@@ -1,24 +1,9 @@
 import { cn } from "@/lib/utils";
-import type { OrderStatus, Priority } from "@/lib/utils";
+import type { Order } from "@/lib/utils";
 import { Card, CardContent, CardFooter } from "@/components/ui/Card";
 import { PriorityBadge, OrderStatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { MapPin, Clock, User, Phone } from "lucide-react";
-
-export interface Order {
-  id: string;
-  patientName: string;
-  facilityName: string;
-  address: string;
-  procedure: string;
-  cptCode: string;
-  priority: Priority;
-  status: OrderStatus;
-  scheduledTime: string;
-  distance?: string;
-  assignedTech?: string;
-  phone?: string;
-}
 
 interface OrderCardProps {
   order: Order;

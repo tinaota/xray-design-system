@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/utils";
-import { Monitor, Smartphone, DollarSign, CheckCircle } from "lucide-react";
+import { Monitor, Smartphone, DollarSign, CheckCircle, HeartPulse } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface RoleOption {
@@ -43,6 +43,15 @@ const roles: RoleOption[] = [
     color: "text-warning-amber",
     bg: "bg-amber-50 group-hover:bg-amber-100 group-data-[selected=true]:bg-amber-100",
   },
+  {
+    role: "client",
+    label: "Patient / Client",
+    description: "Track your home or care home X-ray appointment and results.",
+    hardware: "Mobile / Any Device",
+    icon: <HeartPulse className="h-7 w-7" />,
+    color: "text-rose-500",
+    bg: "bg-rose-50 group-hover:bg-rose-100 group-data-[selected=true]:bg-rose-100",
+  },
 ];
 
 interface RoleSelectorProps {
@@ -52,7 +61,7 @@ interface RoleSelectorProps {
 
 export function RoleSelector({ selected, onSelect }: RoleSelectorProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {roles.map((opt) => {
         const isSelected = selected === opt.role;
         return (

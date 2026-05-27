@@ -1,25 +1,10 @@
 import { cn } from "@/lib/utils";
+import type { Technician } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { SyncStatusBadge } from "@/components/ui/StatusBadge";
-import type { SyncStatus } from "@/lib/utils";
 import { MapPin, Battery, Wifi } from "lucide-react";
-
-export interface Technician {
-  id: string;
-  name: string;
-  initials: string;
-  licenseNumber: string;
-  zone: string;
-  activeOrders: number;
-  completedToday: number;
-  syncStatus: SyncStatus;
-  batteryLevel?: number;
-  lastSeen?: string;
-  credentialExpiry?: string;
-  online: boolean;
-}
 
 interface TechnicianCardProps {
   tech: Technician;

@@ -25,7 +25,6 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/Tabs";
 export { StatCard } from "./ui/StatCard";
 
 export { KPICard } from "./ui/KPICard";
-export type { } from "./ui/KPICard";
 
 export { DataTable } from "./ui/DataTable";
 export type { Column } from "./ui/DataTable";
@@ -36,27 +35,31 @@ export { OrderStatusBadge, PriorityBadge, SyncStatusBadge } from "./ui/StatusBad
 export { Sidebar } from "./layout/Sidebar";
 export { TopNav } from "./layout/TopNav";
 export { PageLayout } from "./layout/PageLayout";
+export { NavShell } from "./layout/NavShell";
+export { ClientShell } from "./layout/ClientShell";
 
 // Domain
 export { OrderCard } from "./domain/OrderCard";
-export type { Order } from "./domain/OrderCard";
-
 export { TechnicianCard } from "./domain/TechnicianCard";
-export type { Technician } from "./domain/TechnicianCard";
-
 export { InvoiceRow } from "./domain/InvoiceRow";
-export type { Invoice } from "./domain/InvoiceRow";
-
 export { CPTCodeBadge, ICD10Badge } from "./domain/CPTCodeBadge";
-
 export { MapWidget } from "./domain/MapWidget";
 export type { MapMarker } from "./domain/MapWidget";
-
+export { LiveMap } from "./domain/LiveMap";
+export type { LiveMapMarker, LiveMapProps } from "./domain/LiveMap";
+export { OrderDetailSheet } from "./domain/OrderDetailSheet";
 export { ComplianceAuditTable } from "./domain/ComplianceAuditTable";
 
-// DataViz & Live Map — wireframe-accurate chart components
+// Charts
 export { FacilityRevenueBar } from "./charts/FacilityRevenueBar";
 export { ServiceSplitDonut } from "./charts/ServiceSplitDonut";
+export { RevenueAreaChart } from "./charts/RevenueAreaChart";
+export { DailyJobVolumeChart } from "./charts/DailyJobVolumeChart";
+export { ProcedureDistributionDonut } from "./charts/ProcedureDistributionDonut";
+export { RealtimeCounterCard } from "./charts/RealtimeCounterCard";
+export { CodeScrubberWidget } from "./charts/CodeScrubberWidget";
+export { ResponseTimeCard } from "./charts/ResponseTimeCard";
+export { MapDensityCard } from "./charts/MapDensityCard";
 
 // Onboarding
 export { RoleSelector } from "./onboarding/RoleSelector";
@@ -65,4 +68,7 @@ export { CredentialUpload } from "./onboarding/CredentialUpload";
 
 // Utilities / types
 export { cn } from "@/lib/utils";
-export type { Role, Priority, OrderStatus, SyncStatus } from "@/lib/utils";
+export type {
+  Role, Priority, OrderStatus, SyncStatus, AuditStatus,
+  Order, Technician, Invoice, Facility, AuditEntry,
+} from "@/lib/utils";

@@ -1,24 +1,7 @@
 import { cn } from "@/lib/utils";
+import type { Invoice } from "@/lib/utils";
 import { OrderStatusBadge } from "@/components/ui/StatusBadge";
-import type { OrderStatus } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
-
-export interface Invoice {
-  id: string;
-  patientName: string;
-  facilityName: string;
-  serviceDate: string;
-  cptCode: string;
-  icd10Code: string;
-  urgencyFactor: number;
-  baseFee: number;
-  r0070Fee: number;
-  mileageFee: number;
-  totalAmount: number;
-  status: OrderStatus;
-  hasFlag?: boolean;
-  flagReason?: string;
-}
 
 interface InvoiceRowProps {
   invoice: Invoice;

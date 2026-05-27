@@ -8,6 +8,7 @@ import {
   LayoutDashboard, Map, ClipboardList, Users, FileText,
   DollarSign, Wrench, WifiOff, PlusCircle,
   Wallet, History, BarChart3, ShieldCheck,
+  CalendarCheck, Phone, LogOut,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -19,13 +20,12 @@ interface NavItem {
 
 const navByRole: Record<Role, NavItem[]> = {
   dispatcher: [
-    { label: "Fleet",       icon: <LayoutDashboard className="h-5 w-5" />, href: "/dispatcher" },
-    { label: "Monitoring",  icon: <Map className="h-5 w-5" />,             href: "/dispatcher/monitoring" },
+    { label: "Operations",  icon: <LayoutDashboard className="h-5 w-5" />, href: "/dispatcher" },
     { label: "Assignment",  icon: <ClipboardList className="h-5 w-5" />,   href: "/dispatcher/assignment" },
     { label: "Intake",      icon: <FileText className="h-5 w-5" />,        href: "/dispatcher/intake" },
-    { label: "Field Units", icon: <Wrench className="h-5 w-5" />,          href: "/dispatcher/fleet" },
     { label: "Credentials", icon: <Users className="h-5 w-5" />,           href: "/dispatcher/credentials" },
     { label: "Billing",     icon: <DollarSign className="h-5 w-5" />,      href: "/dispatcher/billing" },
+    { label: "Reports",     icon: <BarChart3 className="h-5 w-5" />,       href: "/dispatcher/reports" },
   ],
   technician: [
     { label: "Field View",  icon: <Map className="h-5 w-5" />,             href: "/technician" },
@@ -34,6 +34,11 @@ const navByRole: Record<Role, NavItem[]> = {
     { label: "Scan & QC",   icon: <LayoutDashboard className="h-5 w-5" />, href: "/technician/scan" },
     { label: "Equipment",   icon: <Wrench className="h-5 w-5" />,          href: "/technician/equipment" },
     { label: "Offline Log", icon: <WifiOff className="h-5 w-5" />,         href: "/technician/offline" },
+  ],
+  client: [
+    { label: "Appointment", icon: <CalendarCheck className="h-5 w-5" />, href: "/client" },
+    { label: "History",     icon: <History className="h-5 w-5" />,       href: "/client/history" },
+    { label: "Contact",     icon: <Phone className="h-5 w-5" />,         href: "/client/contact" },
   ],
   billing: [
     { label: "Dashboard",  icon: <LayoutDashboard className="h-5 w-5" />, href: "/billing" },
@@ -48,6 +53,7 @@ const roleMeta: Record<Role, { title: string; subtitle: string; ctaLabel?: strin
   dispatcher: { title: "RAD-COMMAND",      subtitle: "Dispatch & Fleet Ops" },
   technician: { title: "RAD-FIELD",        subtitle: "Field Technician" },
   billing:    { title: "Revenue Command",  subtitle: "Unified Logistics Suite", ctaLabel: "New Reconciliation" },
+  client:     { title: "MY X-RAY",         subtitle: "Home & Care Visit" },
 };
 
 interface SidebarProps {
@@ -56,9 +62,10 @@ interface SidebarProps {
   userName?: string;
   userInitials?: string;
   onNavigate?: (href: string) => void;
+  onLogout?: () => void;
 }
 
-export function Sidebar({ role, activeHref, userName = "User", userInitials = "U", onNavigate }: SidebarProps) {
+export function Sidebar({ role, activeHref, userName = "User", userInitials = "U", onNavigate, onLogout }: SidebarProps) {
   const items = navByRole[role];
   const meta = roleMeta[role];
 
@@ -114,6 +121,15 @@ export function Sidebar({ role, activeHref, userName = "User", userInitials = "U
           <ShieldCheck className="h-4 w-4 shrink-0" />
           Help & Support
         </button>
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-gray hover:text-emergency-red hover:bg-emergency-red/10 transition-colors text-sm font-medium"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            Sign Out
+          </button>
+        )}
         <div className="flex items-center gap-3 px-4 py-2 mt-2">
           <Avatar initials={userInitials} size="sm" status="online" />
           <div className="min-w-0">
