@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { SyncStatus } from "@/lib/utils";
-import { Bell, Search, Wifi, WifiOff, RefreshCw } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
+import { Bell, Search } from "lucide-react";
+import { SyncStatusBadge } from "@/components/ui/StatusBadge";
 import { Avatar } from "@/components/ui/Avatar";
 
 interface TopNavProps {
@@ -18,12 +18,12 @@ interface TopNavProps {
   className?: string;
 }
 
-const syncConfig: Record<SyncStatus, { icon: React.ReactNode; label: string; badge: React.ComponentProps<typeof Badge>["variant"] }> = {
-  synced:   { icon: <Wifi className="h-4 w-4 text-green-600" />,         label: "Synced",   badge: "synced" },
-  pending:  { icon: <RefreshCw className="h-4 w-4 text-warning-amber animate-spin" />, label: "Syncing", badge: "pending" },
-  conflict: { icon: <RefreshCw className="h-4 w-4 text-orange-500" />,   label: "Conflict", badge: "conflict" },
-  offline:  { icon: <WifiOff className="h-4 w-4 text-slate-gray" />,     label: "Offline",  badge: "offline" },
-};
+/*
+ * Sync state renders through <SyncStatusBadge>, the canonical indicator. This
+ * used to be a local `syncConfig` map with its own labels and hardcoded colours
+ * (`text-green-600`, `text-orange-500`), which meant the nav could disagree with
+ * the same status shown on a technician screen.
+ */
 
 export function TopNav({
   title,
@@ -36,8 +36,6 @@ export function TopNav({
   onNotifications,
   className,
 }: TopNavProps) {
-  const sync = syncStatus ? syncConfig[syncStatus] : null;
-
   return (
     <header
       className={cn(
@@ -53,12 +51,7 @@ export function TopNav({
 
       {/* Right actions */}
       <div className="flex items-center gap-2 shrink-0">
-        {sync && (
-          <Badge variant={sync.badge} size="sm" className="gap-1.5">
-            {sync.icon}
-            {sync.label}
-          </Badge>
-        )}
+        {syncStatus && <SyncStatusBadge status={syncStatus} />}
 
         {onSearch && (
           <button

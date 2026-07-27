@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -34,8 +34,15 @@ import { MapDensityCard } from "@/components/charts/MapDensityCard";
 import type { Order, Role } from "@/lib/utils";
 import {
   Activity, DollarSign, Users, TrendingUp, Search,
-  Palette, Layers, LayoutDashboard, BarChart3, Map, Puzzle,
+  Palette, Layers, LayoutDashboard, BarChart3, Map, Puzzle, Sparkles, BookOpen,
 } from "lucide-react";
+import { DocsPanel } from "./_docs/DocsPanel";
+import {
+  AIStreamingText, AIThread, AIPromptInput, AISuggestionCard,
+  AIConfidenceMeter, AICitationList, AIDisclaimer, AIErrorState,
+} from "@/components/ai";
+import type { AIMessage, AISuggestionStatus } from "@/components/ai";
+import { CPTCodeBadge as CPTBadgeForAI } from "@/components/domain/CPTCodeBadge";
 
 // ── Demo data ──────────────────────────────────────────────────────────────────
 const DEMO_MARKERS = [
@@ -63,6 +70,82 @@ const DEMO_ORDER: Order = {
 
 const ALL_ROLES: Role[] = ["dispatcher", "technician", "billing", "client"];
 
+// ── AI demo data ───────────────────────────────────────────────────────────────
+const AI_DEMO_RESPONSE =
+  "Based on the order record, this is a two-view chest X-ray performed at the " +
+  "patient's bedside. That supports CPT 71046, and because the study was acquired " +
+  "with portable equipment, R0070 applies as a transport surcharge. The order is " +
+  "missing a primary ICD-10 diagnosis, which will reject on first submission.";
+
+const AI_DEMO_CITATIONS = [
+  {
+    id: "c1",
+    label: "CMS Portable X-Ray Supplier Standards",
+    source: "42 CFR §486.100",
+    page: "4",
+    excerpt: "Transportation of equipment to the patient's location is billable under R0070.",
+    href: "https://www.ecfr.gov",
+  },
+  {
+    id: "c2",
+    label: "CPT 71046 — Radiologic examination, chest; 2 views",
+    source: "AMA CPT Professional Edition",
+    page: "412",
+  },
+];
+
+const AI_DEMO_THREAD: AIMessage[] = [
+  {
+    id: "m1",
+    role: "user",
+    content: "Why did claim INV-2041 get flagged?",
+    timestamp: "10:42 AM",
+  },
+  {
+    id: "m2",
+    role: "assistant",
+    content:
+      "INV-2041 is missing a primary ICD-10 diagnosis. CPT 71046 requires one, so the payer will reject it on first submission.",
+    timestamp: "10:42 AM",
+    status: "complete",
+    citations: [AI_DEMO_CITATIONS[1]],
+  },
+  {
+    id: "m3",
+    role: "user",
+    content: "What should it be?",
+    timestamp: "10:43 AM",
+  },
+  {
+    id: "m4",
+    role: "assistant",
+    content:
+      "The order notes pneumonia, which maps to J18.9 (pneumonia, unspecified organism). Confirm against the referring physician's documentation before applying it — the note is not a signed diagnosis.",
+    timestamp: "10:43 AM",
+    status: "complete",
+  },
+  {
+    id: "m5",
+    role: "system",
+    content: "Claim re-queued for scrubbing",
+    timestamp: "10:44 AM",
+  },
+  {
+    id: "m6",
+    role: "user",
+    content: "Are there other claims from Sunrise Care with the same problem?",
+    timestamp: "10:45 AM",
+  },
+  {
+    id: "m7",
+    role: "assistant",
+    content:
+      "Four other Sunrise Care claims from this week are missing a primary diagnosis: INV-2044, INV-2051, INV-2058, and INV-2063. Together they represent $1,240 in at-risk revenue.",
+    timestamp: "10:45 AM",
+    status: "complete",
+  },
+];
+
 // ── SectionHeader helper ───────────────────────────────────────────────────────
 function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
@@ -79,6 +162,37 @@ export default function ComponentGallery() {
   const [selectedRole, setSelectedRole] = useState<Role | undefined>();
   const [modalOpen, setModalOpen]     = useState(false);
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
+
+  // ── AI demo state ──
+  // Fakes a token stream so the caret, deferred announcement, and thread
+  // autoscroll are all observable without wiring a real model.
+  const [streamed, setStreamed]       = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [prompt, setPrompt]           = useState("");
+  const [suggestionStatus, setSuggestionStatus] = useState<AISuggestionStatus>("pending");
+  const streamTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopStream = useCallback(() => {
+    if (streamTimer.current) clearInterval(streamTimer.current);
+    streamTimer.current = null;
+    setIsStreaming(false);
+  }, []);
+
+  const startStream = useCallback(() => {
+    stopStream();
+    setStreamed("");
+    setIsStreaming(true);
+    const words = AI_DEMO_RESPONSE.split(" ");
+    let i = 0;
+    streamTimer.current = setInterval(() => {
+      i += 1;
+      setStreamed(words.slice(0, i).join(" "));
+      if (i >= words.length) stopStream();
+    }, 55);
+  }, [stopStream]);
+
+  // Don't leave an interval running against an unmounted component.
+  useEffect(() => stopStream, [stopStream]);
 
   return (
     <div className="min-h-screen bg-ghost-white">
@@ -107,6 +221,8 @@ export default function ComponentGallery() {
                 { value: "charts",     label: "Charts & Map",icon: <BarChart3 className="h-4 w-4" /> },
                 { value: "layout",     label: "Layout",      icon: <LayoutDashboard className="h-4 w-4" /> },
                 { value: "onboarding", label: "Onboarding",  icon: <Users className="h-4 w-4" /> },
+                { value: "ai",         label: "AI",          icon: <Sparkles className="h-4 w-4" /> },
+                { value: "docs",       label: "Docs",        icon: <BookOpen className="h-4 w-4" /> },
               ].map(tab => (
                 <TabsTrigger
                   key={tab.value}
@@ -691,6 +807,149 @@ export default function ComponentGallery() {
               </div>
             </section>
 
+          </TabsContent>
+
+          {/* ════════════════════════════════
+              TAB 7 — AI
+          ════════════════════════════════ */}
+          <TabsContent value="ai" className="space-y-14 mt-0">
+
+            {/* Streaming */}
+            <section>
+              <SectionHeader icon={<Sparkles className="h-5 w-5" />} title="Streaming Output" />
+              <Card>
+                <CardContent className="py-6 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" onClick={startStream} disabled={isStreaming}>
+                      Start stream
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={stopStream} disabled={!isStreaming}>
+                      Stop
+                    </Button>
+                    <span className="text-xs text-on-surface-variant">
+                      Caret blinks while streaming; screen readers are told once on completion, not per token.
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-ai-border bg-ai-surface p-4 min-h-24">
+                    <AIStreamingText
+                      text={streamed}
+                      isStreaming={isStreaming}
+                      pending={isStreaming && streamed.length === 0}
+                    />
+                  </div>
+
+                  <AIDisclaimer variant="review-required" />
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Thread + prompt */}
+            <section>
+              <SectionHeader icon={<Sparkles className="h-5 w-5" />} title="Thread & Prompt Input" />
+              <Card>
+                <CardContent className="py-6 space-y-3">
+                  <AIThread
+                    messages={AI_DEMO_THREAD}
+                    maxHeight="20rem"
+                    showTimestamps
+                    className="rounded-xl border border-outline-variant/40 bg-surface-container-low"
+                  />
+                  <AIPromptInput
+                    value={prompt}
+                    onChange={setPrompt}
+                    onSubmit={() => setPrompt("")}
+                    onStop={stopStream}
+                    isStreaming={isStreaming}
+                    maxLength={500}
+                    hint="Enter to send · Shift+Enter for a new line"
+                  />
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Suggestion + confidence */}
+            <section>
+              <SectionHeader icon={<Sparkles className="h-5 w-5" />} title="Suggestions & Confidence" />
+              <div className="grid gap-widget-gap lg:grid-cols-2">
+                <AISuggestionCard
+                  title="Suggested coding"
+                  confidence={0.91}
+                  status={suggestionStatus}
+                  onAccept={() => setSuggestionStatus("accepted")}
+                  onReject={() => setSuggestionStatus("rejected")}
+                  acceptLabel="Apply codes"
+                  rationale={
+                    <>
+                      Two-view bedside chest study. <strong>R0070</strong> applies because the
+                      study used portable equipment. No primary diagnosis is on the order, which
+                      is the flag reason.
+                    </>
+                  }
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <CPTBadgeForAI code="71046" description="Chest X-Ray 2-View" />
+                    <CPTBadgeForAI code="R0070" description="Portable transport" />
+                  </div>
+                </AISuggestionCard>
+
+                <Card>
+                  <CardContent className="py-6 space-y-4">
+                    <p className="text-xs font-label font-semibold uppercase tracking-wider text-on-surface-variant">
+                      Confidence bands
+                    </p>
+                    {[0.94, 0.66, 0.28].map((score) => (
+                      <div key={score} className="flex items-center justify-between gap-4">
+                        <span className="font-mono text-xs text-on-surface-variant">
+                          score {score}
+                        </span>
+                        <AIConfidenceMeter score={score} />
+                      </div>
+                    ))}
+                    <p className="text-xs leading-relaxed text-on-surface-variant">
+                      Bands, not percentages — a raw &ldquo;91%&rdquo; reads as probability of
+                      correctness, which a model score is not.
+                    </p>
+                    {suggestionStatus !== "pending" && (
+                      <Button size="sm" variant="ghost" onClick={() => setSuggestionStatus("pending")}>
+                        Reset suggestion
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* Citations */}
+            <section>
+              <SectionHeader icon={<Sparkles className="h-5 w-5" />} title="Citations" />
+              <AICitationList citations={AI_DEMO_CITATIONS} />
+            </section>
+
+            {/* Errors & disclaimers */}
+            <section>
+              <SectionHeader icon={<Sparkles className="h-5 w-5" />} title="Refusals, Errors & Disclaimers" />
+              <div className="grid gap-widget-gap lg:grid-cols-2">
+                {/* No retry offered — resending a refused prompt returns the same answer. */}
+                <AIErrorState variant="refusal" onRetry={() => {}} />
+                <AIErrorState variant="rate-limit" onRetry={() => {}} />
+                <AIErrorState variant="network" onRetry={() => {}} />
+                <AIErrorState variant="unknown" onRetry={() => {}} />
+              </div>
+              <div className="mt-4 space-y-2">
+                <AIDisclaimer variant="not-diagnostic" />
+                <AIDisclaimer variant="review-required" />
+                <AIDisclaimer variant="generated" />
+              </div>
+            </section>
+
+          </TabsContent>
+
+          {/* ════════════════════════════════
+              TAB 8 — DOCS
+          ════════════════════════════════ */}
+          <TabsContent value="docs" className="mt-0">
+            <DocsPanel />
           </TabsContent>
 
         </div>

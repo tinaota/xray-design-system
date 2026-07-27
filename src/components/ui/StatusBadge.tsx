@@ -1,100 +1,185 @@
 import { cn } from "@/lib/utils";
-import type { OrderStatus, Priority, SyncStatus } from "@/lib/utils";
+import type { AuditStatus, OrderStatus, Priority, SyncStatus } from "@/lib/utils";
 
-interface OrderStatusBadgeProps {
+/*
+ * Canonical status badges. Always render state through these rather than
+ * building a coloured span at the call site — that is what keeps STAT the same
+ * red everywhere.
+ *
+ * Colours come from the status tokens in globals.css (`success-container`,
+ * `transit-container`, …) rather than raw Tailwind palette values. The previous
+ * `bg-green-100 text-green-800` style broke the project's own "no colour values
+ * outside the config" rule and, more practically, could not re-theme under
+ * `.high-contrast` — badges stayed pale-on-pale in the field view.
+ */
+
+type BadgeSize = "sm" | "md" | "lg";
+
+const sizeClass: Record<BadgeSize, string> = {
+  sm: "text-[10px] px-2 py-0.5",
+  md: "text-xs px-2.5 py-1",
+  lg: "text-sm px-4 py-1.5",
+};
+
+const baseClass =
+  "inline-flex items-center gap-1.5 font-label font-semibold uppercase tracking-wider border rounded-full whitespace-nowrap";
+
+export interface OrderStatusBadgeProps {
   status: OrderStatus;
-  size?: "sm" | "md";
+  size?: BadgeSize;
+  className?: string;
 }
 
 const orderStatusConfig: Record<OrderStatus, { label: string; className: string }> = {
-  pending:     { label: "Pending",     className: "bg-warning-amber/20 text-amber-700 border-warning-amber/30" },
-  assigned:    { label: "Assigned",    className: "bg-blue-100 text-blue-700 border-blue-200" },
-  "en-route":  { label: "En Route",   className: "bg-indigo-100 text-indigo-700 border-indigo-200" },
-  "in-progress": { label: "In Progress", className: "bg-green-100 text-green-700 border-green-200" },
-  complete:    { label: "Complete",    className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  billed:      { label: "Billed",     className: "bg-surface-container-high text-on-surface-variant border-outline-variant" },
+  pending: {
+    label: "Pending",
+    className: "bg-warning-container text-warning-on-container border-warning-border",
+  },
+  assigned: {
+    label: "Assigned",
+    className: "bg-info-container text-info-on-container border-info-border",
+  },
+  "en-route": {
+    label: "En Route",
+    className: "bg-transit-container text-transit-on-container border-transit-border",
+  },
+  "in-progress": {
+    label: "In Progress",
+    className: "bg-success-container text-success-on-container border-success-border",
+  },
+  complete: {
+    label: "Complete",
+    className: "bg-complete-container text-complete-on-container border-complete-border",
+  },
+  billed: {
+    label: "Billed",
+    className: "bg-neutral-container text-neutral-on-container border-neutral-border",
+  },
 };
 
-export function OrderStatusBadge({ status, size = "md" }: OrderStatusBadgeProps) {
+export function OrderStatusBadge({ status, size = "md", className }: OrderStatusBadgeProps) {
   const config = orderStatusConfig[status];
   return (
-    <span
-      className={cn(
-        "inline-flex items-center font-label font-semibold uppercase tracking-wider border rounded-full",
-        size === "sm" ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1",
-        config.className
-      )}
-    >
+    <span className={cn(baseClass, sizeClass[size], config.className, className)}>
       {config.label}
     </span>
   );
 }
 
-interface PriorityBadgeProps {
+export interface PriorityBadgeProps {
   priority: Priority;
-  size?: "sm" | "md" | "lg";
+  size?: BadgeSize;
+  /** Pulses the dot on STAT orders. Ignored for other priorities. */
   animate?: boolean;
+  className?: string;
 }
 
 const priorityConfig: Record<Priority, { label: string; className: string; dot: string }> = {
-  stat:    { label: "STAT",    className: "bg-emergency-red text-white",         dot: "bg-white" },
-  urgent:  { label: "URGENT",  className: "bg-warning-amber text-midnight-navy", dot: "bg-midnight-navy" },
-  routine: { label: "ROUTINE", className: "bg-surface-container-high text-on-surface-variant", dot: "bg-on-surface-variant" },
+  stat: {
+    label: "STAT",
+    className: "bg-emergency-red text-white border-emergency-red",
+    dot: "bg-white",
+  },
+  urgent: {
+    label: "URGENT",
+    className: "bg-warning-amber text-midnight-navy border-warning-amber",
+    dot: "bg-midnight-navy",
+  },
+  routine: {
+    label: "ROUTINE",
+    className: "bg-neutral-container text-neutral-on-container border-neutral-border",
+    dot: "bg-neutral-on-container",
+  },
 };
 
-export function PriorityBadge({ priority, size = "md", animate }: PriorityBadgeProps) {
+export function PriorityBadge({ priority, size = "md", animate, className }: PriorityBadgeProps) {
   const config = priorityConfig[priority];
   const showAnimate = animate && priority === "stat";
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 font-label font-bold uppercase tracking-widest rounded-full",
-        size === "sm" ? "text-[10px] px-2 py-0.5" : size === "lg" ? "text-sm px-4 py-1.5" : "text-xs px-3 py-1",
-        config.className
+        baseClass,
+        "font-bold tracking-widest",
+        sizeClass[size],
+        config.className,
+        className
       )}
     >
       <span
-        className={cn(
-          "h-1.5 w-1.5 rounded-full shrink-0",
-          config.dot,
-          showAnimate && "animate-pulse"
-        )}
+        className={cn("h-1.5 w-1.5 rounded-full shrink-0", config.dot, showAnimate && "animate-pulse")}
+        aria-hidden="true"
       />
       {config.label}
     </span>
   );
 }
 
-interface SyncStatusBadgeProps {
+export interface SyncStatusBadgeProps {
   status: SyncStatus;
+  size?: BadgeSize;
+  className?: string;
 }
 
-const syncConfig: Record<SyncStatus, { label: string; className: string }> = {
-  synced:   { label: "Synced",   className: "bg-green-100 text-green-700" },
-  pending:  { label: "Syncing",  className: "bg-blue-100 text-blue-600" },
-  conflict: { label: "Conflict", className: "bg-orange-100 text-orange-700" },
-  offline:  { label: "Offline",  className: "bg-slate-100 text-slate-600" },
+const syncConfig: Record<SyncStatus, { label: string; className: string; dot: string }> = {
+  synced: {
+    label: "Synced",
+    className: "bg-success-container text-success-on-container border-success-border",
+    dot: "bg-success",
+  },
+  pending: {
+    label: "Syncing",
+    className: "bg-info-container text-info-on-container border-info-border",
+    dot: "bg-info animate-pulse",
+  },
+  conflict: {
+    label: "Conflict",
+    className: "bg-conflict-container text-conflict-on-container border-conflict-border",
+    dot: "bg-conflict",
+  },
+  offline: {
+    label: "Offline",
+    className: "bg-neutral-container text-neutral-on-container border-neutral-border",
+    dot: "bg-neutral",
+  },
 };
 
-export function SyncStatusBadge({ status }: SyncStatusBadgeProps) {
+export function SyncStatusBadge({ status, size = "sm", className }: SyncStatusBadgeProps) {
   const config = syncConfig[status];
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 text-xs font-semibold font-label uppercase tracking-wider px-2 py-0.5 rounded-full",
-        config.className
-      )}
-    >
-      <span
-        className={cn(
-          "h-1.5 w-1.5 rounded-full",
-          status === "synced"  && "bg-green-600",
-          status === "pending" && "bg-blue-500 animate-pulse",
-          status === "conflict" && "bg-orange-500",
-          status === "offline" && "bg-slate-500"
-        )}
-      />
+    <span className={cn(baseClass, sizeClass[size], config.className, className)}>
+      <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", config.dot)} aria-hidden="true" />
+      {config.label}
+    </span>
+  );
+}
+
+export interface AuditStatusBadgeProps {
+  status: AuditStatus;
+  size?: BadgeSize;
+  className?: string;
+}
+
+const auditConfig: Record<AuditStatus, { label: string; className: string }> = {
+  verified: {
+    label: "Verified",
+    className: "bg-success-container text-success-on-container border-success-border",
+  },
+  flagged: {
+    label: "Flagged",
+    className: "bg-danger-container text-danger-on-container border-danger-border",
+  },
+  pending: {
+    label: "Pending",
+    className: "bg-warning-container text-warning-on-container border-warning-border",
+  },
+};
+
+/** Compliance audit state. Pairs with `AuditEntry.status`. */
+export function AuditStatusBadge({ status, size = "md", className }: AuditStatusBadgeProps) {
+  const config = auditConfig[status];
+  return (
+    <span className={cn(baseClass, sizeClass[size], config.className, className)}>
       {config.label}
     </span>
   );

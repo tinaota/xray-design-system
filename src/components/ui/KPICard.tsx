@@ -24,7 +24,7 @@ const subIconMap: Record<NonNullable<KPICardProps["subIcon"]>, ReactNode> = {
 
 const subIntentColor: Record<KPIIntent, string> = {
   neutral:  "text-slate-gray",
-  positive: "text-green-600",
+  positive: "text-success",
   negative: "text-emergency-red",
   info:     "text-medical-blue",
   warning:  "text-warning-amber",
@@ -41,7 +41,9 @@ export function KPICard({
 }: KPICardProps) {
   return (
     <div className={cn(
-      "bg-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col",
+      // Token, not `bg-white` — a literal white here stayed white under
+      // `.high-contrast`, leaving black-on-white cards in the field view.
+      "bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col",
       className
     )}>
       <span className="font-label text-label-caps font-semibold uppercase tracking-wider text-slate-gray mb-2">

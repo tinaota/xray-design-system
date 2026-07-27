@@ -58,7 +58,7 @@ export function TechnicianCard({ tech, onSelect, className }: TechnicianCardProp
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge variant="pending" size="sm">{tech.activeOrders} Active</Badge>
+            <Badge variant="warning" size="sm">{tech.activeOrders} Active</Badge>
             <Badge variant="success" size="sm">{tech.completedToday} Done</Badge>
             {tech.credentialExpiry && (
               <Badge variant="default" size="sm">Exp {tech.credentialExpiry}</Badge>

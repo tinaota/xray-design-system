@@ -56,13 +56,13 @@ export function StatCard({
           )}
           {trend !== undefined && !loading && (
             <div className="mt-1.5 flex items-center gap-1">
-              {trendPositive && <TrendingUp className="h-3.5 w-3.5 text-green-600" />}
+              {trendPositive && <TrendingUp className="h-3.5 w-3.5 text-success" />}
               {trendNegative && <TrendingDown className="h-3.5 w-3.5 text-emergency-red" />}
               {trendNeutral  && <Minus className="h-3.5 w-3.5 text-slate-gray" />}
               <span
                 className={cn(
                   "text-xs font-medium",
-                  trendPositive && "text-green-600",
+                  trendPositive && "text-success",
                   trendNegative && "text-emergency-red",
                   trendNeutral  && "text-slate-gray"
                 )}

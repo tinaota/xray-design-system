@@ -6,44 +6,154 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600&family=JetBrains+Mono:wght@500&display=swap");
 
+/*
+ * ── Token layer ──
+ * Every color is stored as a bare RGB channel triplet ("15 23 42"), NOT a hex
+ * string. tailwind.config.ts wraps each one as `rgb(var(--token) / <alpha-value>)`,
+ * which is what lets opacity modifiers like `border-outline-variant/40` keep
+ * working while still routing through the variable.
+ *
+ * Consequence: theming is a variable override, not a config change. See
+ * `.high-contrast` below — it re-points the same tokens and every Tailwind
+ * utility in the app follows.
+ *
+ * If you add a color, add it here first, then reference it in tailwind.config.ts.
+ * Never inline a hex value in a component.
+ */
 @layer base {
   :root {
-    --color-midnight-navy:   #0F172A;
-    --color-medical-blue:    #3B82F6;
-    --color-emergency-red:   #EF4444;
-    --color-warning-amber:   #F59E0B;
-    --color-ghost-white:     #F8FAFC;
-    --color-slate-gray:      #475569;
+    /* Brand palette */
+    --color-midnight-navy: 15 23 42;
+    --color-medical-blue: 59 130 246;
+    --color-emergency-red: 239 68 68;
+    --color-warning-amber: 245 158 11;
+    --color-ghost-white: 248 250 252;
+    --color-slate-gray: 71 85 105;
 
-    --color-surface:                  #fcf8fa;
-    --color-surface-dim:              #dcd9db;
-    --color-surface-container:        #f0edef;
-    --color-surface-container-high:   #eae7e9;
-    --color-surface-container-lowest: #ffffff;
-    --color-on-surface:               #1b1b1d;
-    --color-on-surface-variant:       #45464d;
-    --color-outline:                  #76777d;
-    --color-outline-variant:          #c6c6cd;
+    /* Surface scale */
+    --color-surface: 252 248 250;
+    --color-surface-dim: 220 217 219;
+    --color-surface-bright: 252 248 250;
+    --color-surface-container-lowest: 255 255 255;
+    --color-surface-container-low: 246 243 245;
+    --color-surface-container: 240 237 239;
+    --color-surface-container-high: 234 231 233;
+    --color-surface-container-highest: 228 226 228;
+    --color-surface-variant: 228 226 228;
+    --color-surface-tint: 86 94 116;
 
-    --color-primary:           #000000;
-    --color-primary-container: #131b2e;
-    --color-on-primary:        #ffffff;
+    /* On-surface */
+    --color-on-surface: 27 27 29;
+    --color-on-surface-variant: 69 70 77;
+    --color-inverse-surface: 48 48 50;
+    --color-inverse-on-surface: 243 240 242;
 
-    --color-secondary:           #0058be;
-    --color-secondary-container: #2170e4;
-    --color-on-secondary:        #ffffff;
+    /* Outline */
+    --color-outline: 118 119 125;
+    --color-outline-variant: 198 198 205;
 
-    --color-error:           #ba1a1a;
-    --color-error-container: #ffdad6;
-    --color-on-error:        #ffffff;
+    /* Primary (Midnight Navy family) */
+    --color-primary: 0 0 0;
+    --color-primary-container: 19 27 46;
+    --color-primary-fixed: 218 226 253;
+    --color-primary-fixed-dim: 190 198 224;
+    --color-on-primary: 255 255 255;
+    --color-on-primary-container: 124 131 155;
+    --color-on-primary-fixed: 19 27 46;
+    --color-on-primary-fixed-variant: 63 70 92;
+    --color-inverse-primary: 190 198 224;
 
-    --radius-sm:  0.125rem;
-    --radius:     0.25rem;
-    --radius-md:  0.375rem;
-    --radius-lg:  0.5rem;
-    --radius-xl:  0.75rem;
+    /* Secondary (Medical Blue family) */
+    --color-secondary: 0 88 190;
+    --color-secondary-container: 33 112 228;
+    --color-secondary-fixed: 216 226 255;
+    --color-secondary-fixed-dim: 173 198 255;
+    --color-on-secondary: 255 255 255;
+    --color-on-secondary-container: 254 252 255;
+    --color-on-secondary-fixed: 0 26 66;
+    --color-on-secondary-fixed-variant: 0 67 149;
 
-    --shadow-card: 0 2px 4px rgba(0,0,0,0.08);
+    /* Tertiary */
+    --color-tertiary: 0 0 0;
+    --color-tertiary-container: 39 25 1;
+    --color-tertiary-fixed: 252 222 181;
+    --color-tertiary-fixed-dim: 222 194 154;
+    --color-on-tertiary: 255 255 255;
+    --color-on-tertiary-container: 152 128 93;
+    --color-on-tertiary-fixed: 39 25 1;
+    --color-on-tertiary-fixed-variant: 87 68 37;
+
+    /* Error (Material-style pairing, distinct from the emergency-red brand hue) */
+    --color-error: 186 26 26;
+    --color-error-container: 255 218 214;
+    --color-on-error: 255 255 255;
+    --color-on-error-container: 147 0 10;
+
+    /*
+     * Status tokens. These exist so status badges never hardcode a Tailwind
+     * palette color (`bg-green-100`) — that was the previous approach, and it
+     * meant status colors could not be themed and drifted out of the palette.
+     * Each group is: DEFAULT (solid fill) / container (tint) / on-container
+     * (text on the tint) / border.
+     */
+    --color-success: 21 128 61;
+    --color-success-container: 220 252 231;
+    --color-success-on-container: 22 101 52;
+    --color-success-border: 187 247 208;
+
+    --color-complete: 4 120 87;
+    --color-complete-container: 209 250 229;
+    --color-complete-on-container: 4 120 87;
+    --color-complete-border: 167 243 208;
+
+    --color-info: 29 78 216;
+    --color-info-container: 219 234 254;
+    --color-info-on-container: 29 78 216;
+    --color-info-border: 191 219 254;
+
+    --color-transit: 67 56 202;
+    --color-transit-container: 224 231 255;
+    --color-transit-on-container: 67 56 202;
+    --color-transit-border: 199 210 254;
+
+    --color-warning: 245 158 11;
+    --color-warning-container: 254 243 199;
+    --color-warning-on-container: 180 83 9;
+    --color-warning-border: 253 230 138;
+
+    --color-conflict: 194 65 12;
+    --color-conflict-container: 255 237 213;
+    --color-conflict-on-container: 194 65 12;
+    --color-conflict-border: 254 215 170;
+
+    --color-danger: 239 68 68;
+    --color-danger-container: 254 226 226;
+    --color-danger-on-container: 185 28 28;
+    --color-danger-border: 254 202 202;
+
+    --color-neutral: 71 85 105;
+    --color-neutral-container: 241 245 249;
+    --color-neutral-on-container: 71 85 105;
+    --color-neutral-border: 226 232 240;
+
+    /*
+     * AI surfaces. Assistant output is tinted differently from user input so a
+     * reader can tell generated content from their own at a glance — a
+     * requirement, not decoration, when the output is a suggested CPT code.
+     */
+    --color-ai-accent: 124 58 237;
+    --color-ai-surface: 245 243 255;
+    --color-ai-border: 221 214 254;
+    --color-ai-on-surface: 76 29 149;
+    --color-ai-user-surface: 240 237 239;
+
+    --radius-sm: 0.125rem;
+    --radius: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+
+    --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.08);
   }
 
   * {
@@ -51,36 +161,122 @@
   }
 
   body {
-    background-color: var(--color-ghost-white);
-    color: var(--color-on-surface);
+    background-color: rgb(var(--color-ghost-white));
+    color: rgb(var(--color-on-surface));
     font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: "Inter", ui-sans-serif, sans-serif;
   }
 
-  code, pre, .font-mono {
+  code,
+  pre,
+  .font-mono {
     font-family: "JetBrains Mono", ui-monospace, monospace;
   }
 
   .font-label {
     font-family: "Space Grotesk", ui-sans-serif, sans-serif;
   }
+
+  /*
+   * Respect the OS "reduce motion" setting. Field techs run these screens for a
+   * full shift; the STAT pulse is the main offender.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
-  /* High-contrast mode for field technician views */
+  /*
+   * High-contrast mode for field technician views (sunlight / gloved use).
+   * Applied by <PageLayout highContrast>. Because the tokens above are
+   * variables, overriding them here re-themes every Tailwind utility
+   * underneath this element — no component changes needed.
+   */
   .high-contrast {
-    --color-surface: #000000;
-    --color-on-surface: #ffffff;
-    --color-medical-blue: #60a5fa;
-    --color-emergency-red: #f87171;
-    --color-outline: #9ca3af;
-    background-color: #000000;
-    color: #ffffff;
+    --color-surface: 0 0 0;
+    --color-surface-dim: 0 0 0;
+    --color-surface-bright: 24 24 27;
+    --color-surface-container-lowest: 0 0 0;
+    --color-surface-container-low: 18 18 20;
+    --color-surface-container: 24 24 27;
+    --color-surface-container-high: 39 39 42;
+    --color-surface-container-highest: 51 51 56;
+    --color-surface-variant: 39 39 42;
+
+    --color-on-surface: 255 255 255;
+    --color-on-surface-variant: 228 228 231;
+    --color-inverse-surface: 255 255 255;
+    --color-inverse-on-surface: 0 0 0;
+
+    --color-outline: 156 163 175;
+    --color-outline-variant: 113 113 122;
+
+    --color-ghost-white: 0 0 0;
+    --color-midnight-navy: 0 0 0;
+    --color-medical-blue: 96 165 250;
+    --color-emergency-red: 248 113 113;
+    --color-warning-amber: 251 191 36;
+    --color-slate-gray: 212 212 216;
+
+    /* Status tints invert too, or badge text drops to near-1:1 contrast. */
+    --color-success-container: 6 46 25;
+    --color-success-on-container: 134 239 172;
+    --color-success-border: 21 128 61;
+
+    --color-complete-container: 4 47 34;
+    --color-complete-on-container: 110 231 183;
+    --color-complete-border: 4 120 87;
+
+    --color-info-container: 12 33 84;
+    --color-info-on-container: 147 197 253;
+    --color-info-border: 29 78 216;
+
+    --color-transit-container: 25 20 84;
+    --color-transit-on-container: 165 180 252;
+    --color-transit-border: 67 56 202;
+
+    --color-warning-container: 66 40 3;
+    --color-warning-on-container: 252 211 77;
+    --color-warning-border: 180 83 9;
+
+    --color-conflict-container: 65 22 4;
+    --color-conflict-on-container: 253 186 116;
+    --color-conflict-border: 194 65 12;
+
+    --color-danger-container: 69 10 10;
+    --color-danger-on-container: 252 165 165;
+    --color-danger-border: 185 28 28;
+
+    --color-neutral-container: 24 24 27;
+    --color-neutral-on-container: 212 212 216;
+    --color-neutral-border: 63 63 70;
+
+    --color-ai-accent: 167 139 250;
+    --color-ai-surface: 30 22 54;
+    --color-ai-border: 109 79 197;
+    --color-ai-on-surface: 221 214 254;
+    --color-ai-user-surface: 39 39 42;
+
+    background-color: rgb(var(--color-surface));
+    color: rgb(var(--color-on-surface));
   }
 
   /* Offline indicator pulse */
@@ -90,12 +286,18 @@
     width: 8px;
     height: 8px;
     border-radius: 9999px;
-    background-color: var(--color-warning-amber);
+    background-color: rgb(var(--color-warning-amber));
     animation: pulse-stat 1.5s ease-in-out infinite;
     margin-right: 6px;
   }
 
-  /* Touch target enforcement */
+  /*
+   * Touch target enforcement. Opt-in only — do NOT add this to a component's
+   * base classes, because `min-height` beats `height` and it will silently
+   * flatten every size variant to 48px (this is exactly what used to happen to
+   * <Button size="sm">). Use it on bare interactive elements that have no size
+   * scale of their own.
+   */
   .touch-target {
     min-height: 48px;
     min-width: 48px;
@@ -107,6 +309,15 @@
     font-size: 0.875rem;
     font-weight: 500;
     letter-spacing: -0.02em;
+  }
+
+  /* Shared focus ring, so every interactive element agrees on what focus looks like. */
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    outline: 2px solid rgb(var(--color-medical-blue));
+    outline-offset: 2px;
   }
 }
 
@@ -131,17 +342,17 @@
   backdrop-filter: blur(4px);
 }
 .leaflet-control-attribution a {
-  color: #3B82F6 !important;
+  color: #3b82f6 !important;
 }
 
 .leaflet-control-zoom {
   border: none !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 .leaflet-control-zoom a {
   background: white !important;
-  color: #0F172A !important;
-  border: 1px solid rgba(0,0,0,0.08) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
   width: 30px !important;
   height: 30px !important;
   line-height: 30px !important;
@@ -153,8 +364,8 @@
 
 /* Marker label tooltip */
 .map-label {
-  background: #0F172A !important;
-  border: 1px solid rgba(255,255,255,0.2) !important;
+  background: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 5px !important;
   color: white !important;
   font-size: 9px !important;
@@ -163,7 +374,7 @@
   letter-spacing: 0.06em !important;
   text-transform: uppercase !important;
   padding: 2px 6px !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
   white-space: nowrap !important;
 }
 .map-label::before {
@@ -172,7 +383,13 @@
 
 /* Stat order pulse */
 @keyframes map-pulse {
-  0%   { box-shadow: 0 0 0 0   rgba(239,68,68,.8); }
-  70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
-  100% { box-shadow: 0 0 0 0   rgba(239,68,68,0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
 }

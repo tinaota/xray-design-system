@@ -2,23 +2,37 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
+/*
+ * Generic label chip.
+ *
+ * For domain state — order status, priority, sync state, audit state — use the
+ * dedicated badges in StatusBadge.tsx instead. They own the canonical mapping,
+ * so a status can't end up two different colours in two different screens.
+ *
+ * Variants below draw on the status tokens rather than raw palette values, which
+ * is what lets them re-theme under `.high-contrast`.
+ */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 font-label font-semibold uppercase tracking-wider transition-colors",
+  "inline-flex items-center gap-1 font-label font-semibold uppercase tracking-wider transition-colors whitespace-nowrap",
   {
     variants: {
       variant: {
-        default:   "bg-surface-container text-on-surface-variant",
-        primary:   "bg-midnight-navy text-white",
+        default: "bg-surface-container text-on-surface-variant",
+        primary: "bg-midnight-navy text-white",
         secondary: "bg-medical-blue text-white",
-        stat:      "bg-emergency-red text-white",
-        urgent:    "bg-warning-amber text-midnight-navy",
-        routine:   "bg-surface-container-high text-on-surface-variant",
-        success:   "bg-green-100 text-green-800",
-        offline:   "bg-slate-200 text-slate-600",
-        synced:    "bg-green-100 text-green-700",
-        conflict:  "bg-orange-100 text-orange-700",
-        pending:   "bg-warning-amber/20 text-amber-700",
-        billed:    "bg-blue-100 text-blue-700",
+        outline: "border border-outline-variant text-on-surface-variant",
+
+        // Solid emphasis
+        stat: "bg-emergency-red text-white",
+        urgent: "bg-warning-amber text-midnight-navy",
+
+        // Tinted, token-backed
+        success: "bg-success-container text-success-on-container",
+        info: "bg-info-container text-info-on-container",
+        warning: "bg-warning-container text-warning-on-container",
+        danger: "bg-danger-container text-danger-on-container",
+        conflict: "bg-conflict-container text-conflict-on-container",
+        neutral: "bg-neutral-container text-neutral-on-container",
       },
       size: {
         sm: "px-1.5 py-0.5 text-[10px] rounded",
@@ -40,3 +54,5 @@ export interface BadgeProps
 export function Badge({ className, variant, size, ...props }: BadgeProps) {
   return <span className={cn(badgeVariants({ variant, size }), className)} {...props} />;
 }
+
+export { badgeVariants };
